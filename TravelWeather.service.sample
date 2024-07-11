@@ -1,0 +1,26 @@
+# after, you need to run these commands.
+# sudo systemctrl link ./TravelWeather.service
+# sudo systemctrl enable ./TravelWeather.service
+# sudo systemctrl start ./TravelWeather.service
+
+[Unit]
+Description = Travel Weather managed by Docker
+Requires    = docker.service
+Wants       = nginx.service
+After       = nginx.service
+After       = docker.service
+[Service]
+Type  = simple
+User  = root
+Group = root
+
+Environment = COMPOSE_FILE=/path/to/docker-compose.yml
+
+ExecStartPre = /usr/local/bin/docker-compose -f ${COMPOSE_FILE} down --volumes
+ExecStart    = /usr/local/bin/docker-compose -f ${COMPOSE_FILE} -p travel-weather up
+ExecStop     = /usr/local/bin/docker-compose -f ${COMPOSE_FILE} down --volumes
+Restart      = always
+RestartSec   = 10
+
+[Install]
+WantedBy = multi-user.target
