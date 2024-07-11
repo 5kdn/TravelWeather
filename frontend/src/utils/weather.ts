@@ -85,7 +85,7 @@ export const getWeathersFromMeteo = (lat: string, lng: string): Promise<WeatherA
     longitude: lng,
     hourly: ['temperature_2m', 'precipitation', 'weather_code'],
     timezone: 'Asia/Tokyo',
-    forecast_days: 1,
+    forecast_days: 7,
   }
 
   return new Promise((resolve, reject) => {
