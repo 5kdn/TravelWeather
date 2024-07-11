@@ -58,7 +58,7 @@ const onClickClearBtn = () => {
               @click='onClickClearBtn') クリア
         // timeline
         th(v-for='tl in siteStore.timeline')
-          span {{ tl.getMonth()+1 }} / {{ tl.getDay() }}
+          span {{ tl.getMonth()+1 }} / {{ tl.getDate() }}
           span {{ tl.getHours() }} :00
       // values
       tr.lines(v-for="site in siteStore.sites")
