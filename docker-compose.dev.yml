@@ -1,0 +1,19 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - 127.0.0.1:8000:8000
+    restart: always
+
+  api-server:
+    build:
+      context: ./api
+      target: ${DEPLOY_TARGET:-dev}
+    env_file:
+      - .env
+    restart: always
+    ports:
+      - 8001:8000
+    volumes:
+      - ./api:/app

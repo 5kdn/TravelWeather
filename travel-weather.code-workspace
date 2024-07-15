@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"name": "Frontend",
+			"path": "./frontend"
+		},
+		{
+			"name": "API",
+			"path": "./api"
+		},
+		{
+			"name": "overall",
+			"path": "./",
+		},
+	],
+	"settings": {}
+}
