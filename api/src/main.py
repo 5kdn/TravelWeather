@@ -1,25 +1,23 @@
 #!/usr/bin/env python3
 """FastAPI app"""
 import os
-from typing import Literal
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI
+
+from .routers import coordinate
+
 
 app: FastAPI
-if os.getenv('DEPLOY_TARGET') != 'prod':
-    app = FastAPI()
+if os.getenv('DEPLOY_TARGET') != 'dev':
+    # devじゃなければ全てprodとみなす
+    app = FastAPI(root_path='/api', docs_url=None, redoc_url=None, openapi_url=None)
 else:
-    app = FastAPI(
-        docs_url=None,
-        redoc_url=None,
-        openapi_url=None,
-    )
-api = APIRouter(prefix='/api')
+    app = FastAPI(root_path='/api')
 
 
-@api.get('/')
-async def index() -> dict[Literal['message']: str]:
+@app.get('/')
+async def index():
     """index."""
     return {'message': 'whats up?'}
 
 
-app.include_router(api)
+app.include_router(coordinate.router)
