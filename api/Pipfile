@@ -1,0 +1,18 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[scripts]
+dev = "python -m uvicorn src.main:app --reload --host 0.0.0.0 --port 8000"
+
+[packages]
+uvicorn = {extras = ["standard"], version = "==0.30.1"}
+fastapi = {extras = ["all"], version = "==0.111.1"}
+googlemaps = "==4.10.0"
+
+[dev-packages]
+ruff = "==0.5.2"
+
+[requires]
+python_version = "3.12"

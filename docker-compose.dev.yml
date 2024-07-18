@@ -1,0 +1,41 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+      target: dev
+    develop:
+      watch:
+        - action: sync
+          path: ./frontend
+          target: /app
+          ignore:
+            - node_modules/
+        - action: rebuild
+          path: package.json
+    ports:
+      - 127.0.0.1:8000:8000
+    restart: always
+
+
+  api-server:
+    build:
+      context: ./api
+      target: dev
+    develop:
+      watch:
+        - action: sync
+          path: ./api
+          target: /app
+          ignore:
+            - .venv/
+        - action: rebuild
+          path: Pipfile
+    env_file:
+      - .env
+    restart: always
+    ports:
+      - 8001:8000
+    volumes:
+      - type: bind
+        source: ./api
+        target: /app

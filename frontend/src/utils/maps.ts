@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import axios from 'axios'
 import { Coordinate } from './coordinate'
 
 /**
@@ -97,6 +98,36 @@ export const getPlaceName = (coordinate: Coordinate): Promise<string> => {
     })
     .catch(err => {
       reject(err)
+    })
+  })
+}
+
+
+export const getCoordinateFromAddress = async (address: string): Promise<{name:string,coordinate:Coordinate}[]|null> => {
+  const endpoint = '/api/coordinate'
+  const params = {
+    address: address,
+  }
+
+  return new Promise((resolve, reject) => {
+    axios.get(endpoint, {params})
+    .then((resp) => {
+      if(resp.status !== 200){ throw new Error(resp.statusText) }
+
+      const data = resp.data
+      if(data['status'] !== 'ok'){ throw new Error(data['error']) }
+
+      const sites = [] as {name: string, coordinate: Coordinate}[]
+      data['result'].forEach((item: {name: string,lat: number, lng: number}) => {
+        sites.push({
+          name: item['name'],
+          coordinate: new Coordinate(item['lat'], item['lng'])
+        })
+      })
+      return resolve(sites)
+    })
+    .catch((err) => {
+      return reject(err)
     })
   })
 }

@@ -6,6 +6,10 @@ import { createPinia } from 'pinia'
 
 // Plugins
 import { withVuetifyTheme } from './withVuetifyTheme.decorator'
+import { initialize, mswLoader } from 'msw-storybook-addon'
+
+
+initialize()
 
 const pinia = createPinia()
 
@@ -14,6 +18,7 @@ setup((app) => {
   app.use(pinia)
   registerPlugins(app)
 })
+
 
 export const GlobalTypes = {
   theme: {
@@ -40,6 +45,9 @@ const preview: Preview = {
       },
     },
   },
+  loaders: [
+    mswLoader,
+  ]
 }
 
 export const decorator = [withVuetifyTheme]
