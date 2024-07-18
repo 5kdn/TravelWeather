@@ -7,3 +7,5 @@ Dockerfile
 *.md
 .git
 .gitignore
+
+mockServiceWorker.js
