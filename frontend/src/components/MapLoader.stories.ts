@@ -1,13 +1,16 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
+import { http, HttpResponse } from 'msw'
 import MapLoader from './MapLoader.vue'
 import { useSiteStore } from '@/store/sites'
 import { Site } from '@/utils/site'
 import { Coordinate } from '@/utils/coordinate'
 
+
 const meta: Meta<typeof MapLoader> = {
   title: 'Map/MapLoader',
 }
 export default meta
+
 
 type Story = StoryObj<typeof meta>
 export const None: Story = {
@@ -30,7 +33,7 @@ export const Single: Story = {
     },
     components: {MapLoader},
     template: `<div style="width:100%;height:100vh;border:1px solid red;"><MapLoader /></div>`,
-  })
+  }),
 }
 
 export const Multi: Story = {
@@ -47,4 +50,58 @@ export const Multi: Story = {
     components: {MapLoader},
     template: `<div style="width:100%;height:100vh;border:1px solid red;"><MapLoader /></div>`,
   })
+}
+
+
+export const SearchSinglePlace: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        http.get('/api/coordinate', async () => {
+          return HttpResponse.json({
+            status: 'ok',
+            result: [
+              { name: "mocked place", lat: 12.345, lng: 67.890 },
+            ]
+          })
+        })
+      ]
+    }
+  },
+  render: () => ({
+    setup(){
+      const siteStore = useSiteStore()
+      siteStore.clear()
+    },
+    components: {MapLoader},
+    template: `<div style="width:100%;height:100vh;border:1px solid red;"><MapLoader /></div>`,
+  }),
+}
+
+
+export const SearchMultiPlaces: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        http.get('/api/coordinate', async () => {
+          return HttpResponse.json({
+            status: 'ok',
+            result: [
+              { name: "mocked place 1", lat: 12.345, lng: 67.890 },
+              { name: "mocked place 2", lat: 22.345, lng: 77.890 },
+              { name: "mocked place 3", lat: 32.345, lng: 87.890 },
+            ]
+          })
+        })
+      ]
+    }
+  },
+  render: () => ({
+    setup(){
+      const siteStore = useSiteStore()
+      siteStore.clear()
+    },
+    components: {MapLoader},
+    template: `<div style="width:100%;height:100vh;border:1px solid red;"><MapLoader /></div>`,
+  }),
 }

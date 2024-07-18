@@ -1,0 +1,11 @@
+coverage/
+.vscode/
+.venv/
+__pycache__
+
+.env
+Dockerfile
+*.md
+*.pyc
+.git
+.gitignore

@@ -2,10 +2,12 @@
 import { defineComponent, ref } from 'vue'
 import { GoogleMap, Marker, MarkerCluster, InfoWindow } from 'vue3-google-map'
 import { useSiteStore } from '@/store/sites'
-import { calcCenterPoint, calcZoomlevel, getPlaceName } from '@/utils/maps'
+import { calcCenterPoint, calcZoomlevel, getPlaceName, getCoordinateFromAddress } from '@/utils/maps'
 import { Coordinate } from '@/utils/coordinate'
 import { getWeathers } from '@/utils/weather'
 import { Site } from '@/utils/site'
+import SearchBox from './SearchBox.vue'
+import SelectOneOfMultiSitesDialog from './SelectOneOfMultiSitesDialog.vue'
 
 // @ts-ignore TS6133
 const apikey = import.meta.env.VITE_GOOGLEMAP_API_KEY
@@ -28,6 +30,9 @@ interface InfoItem {
 }
 const infoItemAddItem = ref<InfoItem>({ isShow: false })
 const infoItemRemoveItem = ref<InfoItem>({ isShow: false })
+const selectOneOfMulitSiteFlg = ref<boolean>(false)
+const searchCandidate = ref<{name:string, coordinate: Coordinate}[]>([] as {name:string, coordinate: Coordinate}[])
+
 
 /**
  * @description マップ上でクリックしたときのイベントリスナー
@@ -98,6 +103,52 @@ const onClickPinRemoveBtnEvent = () => {
   infoItemRemoveItem.value.isShow = false
 }
 
+
+/**
+ * @description サーチフォームをsubmitした時のイベント.
+ * 住所から座標を取得し、マップをにピンを示す.
+ * @param address
+ */
+const onSubmitSearchEvent = async (address: string) => {
+  infoItemRemoveItem.value.isShow = false
+  // アドレスから座標を取得
+  console.log(address)
+  const sites = await getCoordinateFromAddress(address)
+  if (!sites) return
+
+  if (sites.length == 0) {
+    // TODO: refine
+    alert("address not found")
+    return
+  }
+
+  // pin候補にInfoWindowを出す
+  if (sites.length == 1){
+    infoItemAddItem.value = {
+      isShow: true,
+      name: sites[0].name,
+      position: {lat: sites[0].coordinate.lat, lng: sites[0].coordinate.lng}
+    }
+  } else {
+    // 候補地リスト
+    searchCandidate.value = sites
+    selectOneOfMulitSiteFlg.value = true
+  }
+}
+
+/**
+ * @description Select-One-Of-MultiSites-Dialogが選択されたときのイベント
+ * @param i Index of searchCandidate
+ */
+const onSelectDialogEvent = (i: number) => {
+  alert(`i is ::${i}`)
+  infoItemAddItem.value = {
+    isShow: true,
+    name: searchCandidate.value[i].name,
+    position: {lat: searchCandidate.value[i].coordinate.lat, lng: searchCandidate.value[i].coordinate.lng}
+  }
+}
+
 </script>
 
 <script lang="ts">
@@ -107,15 +158,15 @@ export default defineComponent({
     'GMap-Marker-Cluster': MarkerCluster,
     'GMap-Marker': Marker,
     InfoWindow,
+    'Search-Box': SearchBox,
+    'Select-One-Of-MultiSites-Dialog': SelectOneOfMultiSitesDialog,
   },
 })
-
 </script>
 
 <template lang="pug">
-#map-wrapper
-  GoogleMap(
-    class="map"
+v-container.h-100.w-100.ma-0.pa-0
+  GoogleMap.h-100.w-100.position-absolute(
     :api-key="apikey"
     :center="{lat: center.lat, lng: center.lng}"
     :zoom="zoom"
@@ -145,15 +196,9 @@ export default defineComponent({
         color="error"
         @click='onClickPinRemoveBtnEvent()'
         ) Remove
+  Search-Box.position-absolute.mt-md-5.ml-md-5(@sender='onSubmitSearchEvent')
+Select-One-Of-MultiSites-Dialog(@sender='onSelectDialogEvent' :is-active='selectOneOfMulitSiteFlg' :items='searchCandidate')
 </template>
 
 <style scoped lang="scss">
-#map-wrapper {
-  height: 100%;
-  width: 100%;
-}
-.map {
-  position: relative;
-  height: 100%;
-}
 </style>
